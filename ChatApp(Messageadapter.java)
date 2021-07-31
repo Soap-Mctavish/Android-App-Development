@@ -1,0 +1,120 @@
+package com.example.demochatapp.Adapter;
+import android.content.Context;
+import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.demochatapp.Model.Chat;
+
+import com.example.demochatapp.Model.User;
+
+import com.google.firebase.auth.FirebaseUser;
+
+import java.util.List;
+
+public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
+
+    static final int MSG_TYPE_LEFT = 0;
+    static final int MSG_TYPE_RIGHT = 1;
+    Context Context;
+    List<Chat> mchat;
+    String imageURL;
+    FirebaseUser fuser;
+
+    public MessageAdapter(Context mContext, List<Chat> mchat, String imageURL) {
+
+        this.mContext = mContext;
+
+        this.mchat = mchat;
+
+        this.imageURL = imageURL;
+    }
+
+    @NonNull
+    @org.jetbrains.annotations.NotNull
+    @Override
+    public MessageAdapter.ViewHolder onCreateViewHolder(@NonNull @org.jetbrains.annotations.NotNull ViewGroup parent, int viewType) {
+        if (viewType == MSG_TYPE_RIGHT) {
+
+            View view = LayoutInflater.from(mContext).inflate(R.layout.chat_item_right, parent, attachToRoot:
+            false);
+
+            return new MessageAdapter.ViewHolder(view);
+
+        } else {
+
+            View view
+            LayoutInflater.from(mContext).inflate(R.layout.chat_item_left, parent, attachToRoot
+            false);
+            return new MessageAdapter.ViewHolder(view);
+        }
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull @org.jetbrains.annotations.NotNull MessageAdapter.ViewHolder holder, int position) {
+        older.profile_image.setImageResource(R.mipmap.ic_Launcher);
+
+    }else
+
+    {
+
+        Glide.with(mContext).load(imageURL).into(holder.profile_image);
+
+    }
+
+   if(position==mchat.size()-1)
+
+    {
+        if (chat.isIsseen()) {
+
+            holder.txt_seen.setText("seen");
+
+        } else {
+
+            holder.txt_seen.setText("Delivered");
+
+        }else{
+
+        holder.txt_seen.setVisibility(View.GONE);
+    }
+
+    }
+
+
+    @Override
+    public int getItemCount() {
+        return machat.size();
+    }
+    class Viewfolder extends RecyclerView.ViewHolder {
+
+        TextView show_message;
+        ImageView profile_image;
+
+        TextView txt_seen;
+
+        public Viewolder(@NonNull View itemView) {
+
+            super(itenView);
+
+            show_message = itemView.findViewById(R.id, show_message);
+            profile_image = itemView.findViewById(R.id.profile_image);
+            txt_seen = itemview.findViewById(R.id.txt_seen);
+        }
+    }
+    @Override
+
+    public int getItemViewType(int position) {
+
+        fuser = FirebaseAuth.getInstance().getCurrentUser();
+
+        if(mchat.get(position).getSender().equals(fuser.getUid())) {
+
+            return MSG_TYPE_RIGHT;
+
+        }
+        else{
+            return MSG_TYPE_RIGHT;
+            }
+}
+}
