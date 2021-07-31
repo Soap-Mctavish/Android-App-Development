@@ -1,0 +1,98 @@
+package com.example.demochatapp;
+
+import androidx.appcompat.app.AppCompatActivity;
+import com.google.firebase.auth.FirebaseAuth;
+
+import com.google.firebase.database.DatabaseReference;
+import com.rengwuxian.materialedittext.MaterialEditText;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.widget.Toast;
+
+public class RegisterActivity extends AppCompatActivity {
+    MaterialEditText username, email, password;
+    Button btn_register;
+    FirebaseAuth auth;
+    DatabaseReference reference;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_register);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar (toolbar);
+        getSupportActionBar().setTitle("Register");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        username = findViewById(R.id.username);
+        email = findViewById(R.id.email);
+        password = findViewById(R.id.password);
+        btn_register = findViewById(R.id.register);
+        auth = FirebaseAuth.getInstance();
+        btn_register.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String txt_username=username.getText().toString();
+                String txt_email = email.getText().toString();
+                String txt_password=password.getText().toString();
+                if(TextUtils.isEmpty(txt_username ) || TextUtils.isEmpty(txt_email) || TextUtils.isEmpty(txt_password))
+
+                {
+
+                    Toast.mokeText( context:RegisterActivity.this,text:"All fields are required",Toast.LENGTH_SHORT);
+
+                }else if (txt_password.length() <6) {
+                    Toast.makeText(context:RegisterActivity.this,text:"Password must be atleast 6 characters", Toast.LENGTH_SHORT).show()
+                }
+                else{
+                    register(txt_username, txt_email, txt_password);
+                }
+
+            }
+            });
+    }
+    public void register (final String username, String email, String password) {
+        auth.createUserWithEmailAndPassword(email, password)
+
+                .addOnCompletelistener(
+
+                        new OnCompletelistener<AuthResult>() {
+
+                            @Override
+
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+
+                                if (task.isSuccessful()) {
+
+                                    FirebaseUser firebaseUser auth.getCurrentUser();
+
+                                    String userid = firebaseUser.getUid();
+                                    reference FirebaseDatabase.getInstance().getReference(path:"Users").child(userid);
+                                    HashMap<String, String> hashMap = new HashMap<>();
+                                    hashMap.put("id", userid);
+                                    hashMap.put("username username");
+                                    hashMap.put("imageURL","default")
+                                    hashMap.put("status", "offline");
+                                    hashMap.put("search", username.toLowerCase());
+                                    reference.setValue (hashMap).addOnComplete Listener(new oncompletelistener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+
+                                                Intent intent =new Intent(packageContext:RegisterActivity. this, MainActivity.class);
+                                                intent addFlags (Intent.FLAG_ACTIVITY CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                startActivity (intent);
+                                                finish();
+                                            }
+                                        }
+                                    });
+                                }
+                                else{
+                                    Toast.makeText(RegisterActivity.this,"You can't have this email or password for registration",Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        }
+                );
+    }
+
+}
