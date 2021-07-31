@@ -1,0 +1,211 @@
+package com.example.demochatapp;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+
+public class MainActivity extends AppCompatActivity {
+
+    CircleImageView profile_image;
+
+    TextView username;
+
+    FirebaseUser firebaseUser;
+
+    DatabaseReference reference;
+
+    @Override
+
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        Toolbar toolbar findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        profile_image findViewById (R.id.profile_image);
+
+        username = findViewById(R.id.username);
+
+        firebaseUser FirebaseAuth.getInstance().getCurrentUser();
+        reference FirebaseDatabase.getInstance().getReference(path"Users")
+
+        child(firebaseUser.getuid());
+        reference.addValueEventListener(new ValueEventListener() {
+
+            @Override
+
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                User user = dataSnapshot.getValue(User.class);
+
+                username.setText(user.getUsername());
+
+                if (user.getImageURL().equals("default")) {
+
+                    profile_image.setImageResource(R.mipmap.ic_Launcher);
+
+                } else {
+
+                    Glide.with(getApplicationContext()).load(user.getImageURL()).into(profile_image);
+
+                }
+
+            }
+
+            @Override
+
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+
+        });
+
+        final TabLayout tablayout = findViewById(R.id.tab_layout);
+        final ViewPager viewPager = findViewById(R.id.view_pager);
+        reference - FirebaseDatabase.getInstance().getReference();
+        reference.addValueEventListener(new ValueEventListener() {
+
+            @Override
+
+            public void onDataChange (@NonNull DataSnapshot dataSnapshot) {
+
+                ViewPager Adapter viewPagerAdapter new ViewPager Adapter (getSupportFragmentManager());
+
+                int unread=0;
+
+                for (DataSnapshot snapshot: dataSnapshot.getChildren()){
+
+                    Chat chat = snapshot.getValue (Chat.class);
+
+                    if (chat.getReceiver().equals(firebaseUser.getUid())&& Ichat.isIsseen()){
+
+                        unread++;
+
+                    }
+
+                }
+
+                if(unread==0){
+
+                    viewPager Adapter.addFragment(new ChatsFragment(), title:"Chats");
+
+                }else{
+
+                    viewPagerAdapter.addFragment(new ChatsFragment(), title: "("+unread+")" +"Chats");
+                    viewPagerAdapter.addFragment(new UsersFragment(), title "Users");
+
+                    viewPager Adapter.addFragment (new ProfileFragment(), title "Profile");
+
+                    viewPager.setAdapter (viewPagerAdapter);
+
+                    tablayout.setupWithViewPager (viewPager);
+
+                }
+
+            }
+    @Override
+
+    public boolean onCreateOptionsMenu(Menu menu) { getMenuInflater(). inflate (R.menu.menu,menu);
+
+return true;
+}
+
+    @Override
+
+    public boolean onOptionsItemSelected (@NonNull MenuItem item) {
+
+        switch (item.getItemId()) {
+
+            case R.id.Logout:
+
+                FirebaseAuth.getInstance().signOut();
+                startActivity(new Intent(packageContext:MainActivity.this, StartActivity.class).setFlags Intent.FLAG ACTIVITY CLEAR_TOP);
+                finish();
+
+                return true;
+
+        }
+
+        return false;
+        }
+    }
+
+    class ViewPagerAdapter extends FragmentPagerAdapter {
+
+        private ArrayList<Fragment> fragments;
+
+        private ArrayList<String> titles;
+
+        public ViewPager Adapter(@NonNull FragmentManager fm)
+
+super(fm);
+
+this.fragments=new ArrayList<>();
+
+this.titles=new ArrayList<>();
+
+        {
+
+        }
+
+        @NonNull
+
+        @Override
+
+        public Fragment getItem(int position) {
+            return fragments.get(position);
+
+            @Override
+
+            public int getCount () {
+
+                return fragments.size();
+            }
+            public void addFragment (Fragment fragment, String title){
+
+                fragments.add(fragment);
+
+                titles.add(title);
+
+
+            }
+
+            @Nullable
+            @Override
+
+            public CharSequence getPageTitle ( int position){
+
+                return titles.get(position);
+
+            }
+        }
+
+        private void status(String status) {
+
+            reference = FirebaseDatabase.getInstance().getReference(path:"Users").
+            child(firebaseUser.getUid());
+
+            HashMap<String, Object hashMap = new HashMap<>();
+
+            hashMap.put("status", status);
+
+            reference.updateChildren(hashMap);
+        }
+
+        @Override
+
+        protected void onResume() {
+            super.onResume();
+            status("online");
+        }
+
+        @Override
+
+        protected void onPause() {
+            super.onPause();
+            status("offline");
+        }
+    }
+}
