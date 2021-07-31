@@ -1,0 +1,107 @@
+package com.example.demochatapp.Fragments;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+
+public class ChatsFragment extends Fragment {
+    private RecyclerView recyclerView;
+    private List<User> mUsers;
+
+    private UserAdapter userAdapter;
+
+    private List<User> display_chat;
+
+    FirebaseUser fuser;
+
+    DatabaseReference reference;
+
+    private List<String> userslist;
+
+    public ChatsFragment() { // Required empty public constructor
+
+        Override
+
+        public View onCreateView (LayoutInflater, inflater, ViewGroup container,
+
+                Bundle savedInstanceState){
+
+// Inflate the layout for this fragment
+
+            View view = inflater.inflate(R.layout.fragment_chats, container, attachToRoot:false);
+            recyclerView = view.findViewById(R.id.recycler_view);
+            recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+            recyclerView.setHasFixedSize(true);
+
+            fuser = FirebaseAuth.getInstance().getCurrentUser();
+
+            userslist = new ArrayList<String>();
+
+            reference = FirebaseDatabase.getInstance().getReference(path:"Chats");
+            reference.addValueEventListener(new ValueEventListener() {
+
+                @Override
+
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                    userslist.clear();
+
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        Chat chat snapshot.getValue(Chat.class);
+
+                        if (chat.getSender().equals(fuser.getUid())) {
+                            userslist.add(chat.getReceiver());
+                        }
+
+                        if (chat.getReceiver().equals(fuser.getUid())) {
+                            userslist.add(chat.getSender());
+                        }
+                    }
+                    readChats();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                }
+            });
+            reurn view;
+        }
+        private void readChats () {
+
+            mUsers = new ArrayList<>();
+
+            display_chat = new ArrayList<>();
+            reference = FirebaseDatabase.getInstance().getReference(path:"Users");
+            reference.addValueEventListener(new ValueEventListener() {
+
+                @Override
+
+                public void onDataChange(@fionNull DataSnapshot dataSnapshot) {
+                    mUsers.clear();
+                    display_chat.clear();
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        User user = snapshot.getValue(User.class);
+                        for (String name : userslist) {
+
+                            if (user.getId().equals(name)) {
+                                display_chat.add(user);
+                                break;
+
+                            }
+                        }
+                    }
+
+                    userAdapter = new User Adapter(getContext(), display_chat, chat true);
+                    recyclerView.setAdapter(user Adapter);
+                }
+
+                @Override
+
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                }
+            });
+
+        }
+    }
+}
